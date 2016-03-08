@@ -1,0 +1,103 @@
+Changes which may affect PHP 5 code running on PHP 7
+	- removed functions
+		- ereg
+		- call_user_method, call_user_method_array
+			- use call_user_func, call_user_func_array
+		- set_socket_blocking
+			- use stream_set_blocking
+		- dl (only in php-fpm)
+		- all postscript1 functions from gd
+			- imageeps*
+			- migrate to truetype fonts
+	- MySQL (mysql_), MSSQL (mssql) is gone.
+		- Migrate to PDO or if lazy MySQL, MySQLi (mysqli_)
+		- Migrate to PDO or SQLSrv
+	- $HTTP_RAW_POST_DATA global variable is gone. read from the php://input stream instead.
+	- asp tags <% %> and script tags <script language="php"></script> gone finally
+	- Uncaught Exceptions because Throwable type change.
+		- Exception vs Throwable
+	- Dynamic Var stacked is now left assoc.
+		- Strictly Left-to-Right Now
+		- $$Val['Key']
+			- ${$Val['Key']}
+			- ($$Val)['Key']
+		- $Object->$Property['Key']
+			- $Object->{$Property['Key']}
+			- ($Object->$Property)['Key']
+	- yeild is now right assoc
+		- echo yield -1;
+			- echo (yield) - 1;
+			- echo yield (-1);			
+	- E_STRICTs downgraded to Notice/Warning/Depre
+	- foreach changes
+		- no longer moves internal pointer.
+		- will not iterate late adds. will trigger copy-on-write by-value.
+		- will iterate late adds by-reference.	
+	- list()
+		- cannot split strings now Use str_split() for strings.
+		- array appension order
+	- JSON changes
+		- floats are stricter
+			- var_dump(json_decode('-42.')) results in NULL
+			- change to -42 or -42.0
+			- same for science -42e42 or -42.0e42
+	- func_get_args returns current value (reading by ref)  
+		- previous func_get_args would return the original arguments
+		- now if you manage to modify them, it will reflect what you did.			
+	- multiple arguments with same name no longer works.
+		- function Whatever($Val, $Trash, $Trash, $Trash) {
+	- integer changes
+		- negative bitshifts no more
+			- $value = $value << $shift
+			- arith error if shift -1
+			- im sorry.
+		- shifting too wide always results 0
+			- $value = $value << 9001;
+			- previously platform would lol you
+		- division by 0
+			- used to E_WARNING
+			- now returns float(NAN), float(INF), or float(-INF) depending... nfi why.
+			- and throws DivisionByZero exception.
+	- string changes
+		- hex no longer validates under is_numeric() - is_numeric() means "human readable" basically.
+	- new-by-reference $Object =& new Object gone finally. its already pbr.
+New Things
+	- function scalar typehints and return hints.
+	- null coalescing operator
+		- if(array_key_exists('input',$_GET)) return $_GET['input'];
+		- return (isset($_GET['input'])?($_GET['input']):(null);
+		- return ($_GET['input'])??(null);
+		- return ($_GET['input'])??($_POST['input'])??(null);
+	- spaceship operator
+		- return $A <=> $B;
+	- constant arrays
+		- define('DATA',[...]);
+		- echo DATA[...];
+	- anonymous objects
+		- new class {}
+	- unicode codepoint escape
+		- echo "\u{a5}"; // ¥
+	- expectation asserts
+	- closure call binding
+		- $Func = function() { echo $this; };
+		- $Func->Call('lol');
+	- looser reserved word restrictions
+		- can use words like "Print" and "Private" or "For" as method names now. all except "class"
+	- random_bytes, random_int
+	- preg_replace_callback_array
+	- IntlChar
+Deprecated Things
+	- PHP 4 style constructors (Selfnamed vs __construct)
+	- calling static methods unstatically is now serious about not doing that.
+	- custom salts on password_hash
+	- capture_session_meta stream context option: use stream_get_meta_data
+Sources
+	- http://php.net/manual/en/migration70.php
+	- http://php.net/manual/en/migration70.incompatible.php
+	- http://php.net/manual/en/migration70.new-features.php
+	- http://php.net/manual/en/migration70.new-functions.php
+	- http://php.net/manual/en/migration70.classes.php
+	- http://php.net/manual/en/migration70.changed-functions.php
+	- http://php.net/manual/en/class.intlchar.php
+	- http://php.net/manual/en/function.assert.php#function.assert.expectations
+	
